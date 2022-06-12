@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from 'react'
+import './App.css'
+import ProfileCard from './ProfileCard'
+
+const API_URL = 'https://api.overdeso.com/v1'
 
 function App() {
+  const [userData, setUserData] = useState()
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const response = await fetch(`${API_URL}`, {
+        method: 'POST',
+        body: JSON.stringify([
+          {
+            method: 'account.get',
+            params: { account: 'brootle' },
+          },
+        ]),
+      })
+      const json = await response.json()
+      // small hack to get the data and error from response
+      const [error, data] = json[0]
+      console.log(data)
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      setUserData(data)
+    }
+    getUserData()
+  }, [])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ProfileCard userData={userData} />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
